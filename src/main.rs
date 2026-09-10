@@ -1,7 +1,9 @@
+mod alerts;
 mod cache;
 mod diagnostics;
 mod domain;
 mod formatting;
+mod macos_notifications;
 mod menu_bar;
 mod provider;
 mod refresh;

@@ -70,7 +70,9 @@ The artifacts are written to `dist/GoldTicker.app`, `dist/GoldTicker-<version>-<
 ## Data and limitations
 
 - Quotes are requested from Tencent's `hf_XAU` endpoint every five minutes after startup, with failure backoff.
-- The application keeps local settings, a recent quote cache, and redacted bounded diagnostics in macOS Application Support. It does not upload those files.
+- The application keeps local settings (including its threshold-alert state and startup preference), a recent quote cache, and redacted bounded diagnostics in macOS Application Support. It does not upload those files.
+- A threshold alert requests macOS notification permission only after a fresh quote crosses from at-or-above the saved threshold to below it. It does not alert repeatedly while the quote remains below the threshold.
+- The startup preference is shown but unavailable in the unsigned DMG. macOS requires a code-signed app to register a login item.
 - The upstream response does **not** yet establish a currency or quote unit. Gold Ticker deliberately displays this as unconfirmed instead of guessing.
 - Quote availability, accuracy, delay, geographic access, rate limits, and redistribution rights belong to the third-party data source and are not guaranteed by this application.
 

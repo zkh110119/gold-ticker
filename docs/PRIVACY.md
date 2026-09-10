@@ -10,11 +10,12 @@ Gold Ticker requests the public Tencent `hf_XAU` quote endpoint to retrieve a go
 
 Gold Ticker stores the following only on the Mac where it runs, under the macOS Application Support directory for the app:
 
-- a user-configured price threshold;
+- a user-configured price threshold and the last threshold-side state needed to avoid duplicate alerts;
+- an on/off preference for startup at login (the unsigned distribution cannot activate this macOS feature);
 - the most recent successful quote cache;
 - bounded diagnostic logs containing redacted event names and timestamps.
 
-The app uses this data to restore its display after launch, compare successive quotes, and diagnose app lifecycle/refresh failures. It does not transmit settings, cache contents, or diagnostic logs.
+The app uses this data to restore its display after launch, compare successive quotes, avoid duplicate threshold alerts, and diagnose app lifecycle/refresh failures. It requests macOS notification permission only after a fresh downward threshold crossing. It does not transmit settings, cache contents, or diagnostic logs.
 
 ## What is not collected
 

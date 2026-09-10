@@ -72,5 +72,6 @@ Check that neither the DMG nor its source staging content contains credentials, 
 - [ ] `Info.plist`, icon resource, and executable permissions are correct.
 - [ ] The SHA-256 sidecar verifies the exact uploaded DMG.
 - [ ] No secrets, credentials, raw quote responses, caches, thresholds, or user diagnostics are in the release asset.
-- [ ] Release notes accurately state the unsigned/unnotarized status and supported architecture.
+- [ ] The unsigned release makes no claim that startup-at-login is available; it requires a code-signed app.
+- [ ] Threshold-alert permission is requested only after a fresh downward threshold crossing, and the release notes mention this local notification behavior.
 - [ ] Privacy notice, disclaimer, support channel, and third-party market-data authorization are current.

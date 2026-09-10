@@ -17,6 +17,8 @@
 
 ### Notes
 
+- This unsigned release cannot enable startup at login; macOS requires a code-signed app for that feature.
+- A threshold alert requests macOS notification permission only after a fresh price crossing from at-or-above the saved threshold to below it; it does not repeat while the quote remains below.
 - Quotes are sourced from Tencent's `hf_XAU` endpoint and may be delayed, unavailable, or inaccurate.
 - Currency and quote unit remain unconfirmed by the upstream response.
 - Gold Ticker is for informational reference only, not investment or trading advice.

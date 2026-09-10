@@ -12,10 +12,15 @@ keywords = ["macos", "menu-bar", "gold", "quote"]
 categories = ["command-line-utilities"]
 
 [dependencies]
+block2 = "=0.6.2"
 directories = "=6.0.0"
 encoding_rs = "=0.8.40"
 objc2 = "=0.6.4"
 objc2-app-kit = { version = "=0.3.2", features = [
+    "NSButton",
+    "NSButtonCell",
+    "NSCell",
+    "NSControl",
     "NSApplication",
     "NSMenu",
     "NSPopover",
@@ -29,9 +34,17 @@ objc2-app-kit = { version = "=0.3.2", features = [
 objc2-foundation = { version = "=0.3.2", features = [
     "NSDate",
     "NSGeometry",
+    "NSBundle",
     "NSObject",
     "NSString",
     "NSTimer",
+] }
+objc2-user-notifications = { version = "=0.3.2", default-features = false, features = [
+    "UNNotificationContent",
+    "UNNotificationRequest",
+    "UNNotificationTrigger",
+    "UNUserNotificationCenter",
+    "block2",
 ] }
 reqwest = { version = "=0.13.5", default-features = false, features = ["blocking", "rustls"] }
 rust_decimal = { version = "=1.43.0", features = ["serde"] }

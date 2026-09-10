@@ -21,6 +21,10 @@ pub(crate) enum Event {
     RefreshSucceeded,
     RefreshFailed,
     ManualRefreshRequested,
+    ThresholdAlertRequested,
+    ThresholdAlertDelivered,
+    ThresholdAlertFailed,
+    ThresholdAlertUnavailable,
     RefreshWorkerStopped,
 }
 
@@ -34,6 +38,10 @@ impl Event {
             Self::RefreshSucceeded => "refresh_succeeded",
             Self::RefreshFailed => "refresh_failed",
             Self::ManualRefreshRequested => "manual_refresh_requested",
+            Self::ThresholdAlertRequested => "threshold_alert_requested",
+            Self::ThresholdAlertDelivered => "threshold_alert_delivered",
+            Self::ThresholdAlertFailed => "threshold_alert_failed",
+            Self::ThresholdAlertUnavailable => "threshold_alert_unavailable",
             Self::RefreshWorkerStopped => "refresh_worker_stopped",
         }
     }
@@ -112,16 +120,22 @@ mod tests {
     use super::{Event, MAX_LOG_FILES, write_event};
 
     fn temporary_directory() -> std::path::PathBuf {
-        let directory = std::env::temp_dir().join(format!(
-            "gold-ticker-diagnostics-test-{}-{}",
-            std::process::id(),
-            SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        fs::create_dir_all(&directory).unwrap();
-        directory
+        loop {
+            let directory = std::env::temp_dir().join(format!(
+                "gold-ticker-diagnostics-test-{}-{}-{}",
+                std::process::id(),
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos(),
+                std::thread::current().name().unwrap_or("unnamed")
+            ));
+            match fs::create_dir(&directory) {
+                Ok(()) => return directory,
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => panic!("could not create temporary diagnostics directory: {error}"),
+            }
+        }
     }
 
     #[test]
