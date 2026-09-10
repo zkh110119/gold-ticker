@@ -7,8 +7,8 @@ use objc2::runtime::{AnyObject, ProtocolObject};
 use objc2::{DefinedClass, MainThreadOnly, define_class, msg_send, sel};
 use objc2_app_kit::{
     NSApp, NSApplication, NSApplicationActivationPolicy, NSApplicationDelegate, NSButton, NSColor,
-    NSPopover, NSStatusBar, NSStatusItem, NSTextField, NSVariableStatusItemLength, NSView,
-    NSViewController,
+    NSPopover, NSPopoverBehavior, NSStatusBar, NSStatusItem, NSTextField,
+    NSVariableStatusItemLength, NSView, NSViewController,
 };
 use objc2_foundation::{
     MainThreadMarker, NSNotification, NSObject, NSObjectProtocol, NSPoint, NSRect, NSRectEdge,
@@ -24,6 +24,21 @@ use crate::refresh::{self, ManualRefreshDebounce, RefreshEvent, RefreshHandle};
 use crate::settings::{self, Settings};
 
 const POPOVER_SIZE: NSSize = NSSize::new(340.0, 270.0);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum QuotePopoverBehavior {
+    Transient,
+}
+
+impl QuotePopoverBehavior {
+    fn app_kit(self) -> NSPopoverBehavior {
+        match self {
+            Self::Transient => NSPopoverBehavior::Transient,
+        }
+    }
+}
+
+const QUOTE_POPOVER_BEHAVIOR: QuotePopoverBehavior = QuotePopoverBehavior::Transient;
 
 #[derive(Debug)]
 struct PopoverViews {
@@ -565,6 +580,7 @@ fn build_popover(
     let controller = NSViewController::new(mtm);
     controller.setView(&content_view);
     let popover = NSPopover::new(mtm);
+    popover.setBehavior(QUOTE_POPOVER_BEHAVIOR.app_kit());
     popover.setContentSize(POPOVER_SIZE);
     popover.setContentViewController(Some(&controller));
     (
@@ -638,4 +654,19 @@ pub(crate) fn run() -> ! {
     application.run();
 
     unreachable!("NSApplication run loop must not return");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{QUOTE_POPOVER_BEHAVIOR, QuotePopoverBehavior};
+    use objc2_app_kit::NSPopoverBehavior;
+
+    #[test]
+    fn quote_popover_uses_transient_behavior_for_outside_click_dismissal() {
+        assert_eq!(QUOTE_POPOVER_BEHAVIOR, QuotePopoverBehavior::Transient);
+        assert_eq!(
+            QUOTE_POPOVER_BEHAVIOR.app_kit(),
+            NSPopoverBehavior::Transient
+        );
+    }
 }

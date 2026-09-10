@@ -113,7 +113,8 @@ mod tests {
 
     fn temporary_directory() -> std::path::PathBuf {
         let directory = std::env::temp_dir().join(format!(
-            "gold-ticker-diagnostics-test-{}",
+            "gold-ticker-diagnostics-test-{}-{}",
+            std::process::id(),
             SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()
