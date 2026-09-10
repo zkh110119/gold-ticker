@@ -1,0 +1,7 @@
+/target
+/dist
+/packaging/icon.iconset
+/packaging/*.zip
+/packaging/*.dmg
+/packaging/signing.env
+.DS_Store

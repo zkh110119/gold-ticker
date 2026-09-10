@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest an improvement to Gold Ticker.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing an idea. Gold Ticker is an informational quote display, not a trading tool.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the user need or workflow.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior or user experience you would like.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe other ways you currently address this need.
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
