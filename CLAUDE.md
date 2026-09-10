@@ -69,7 +69,7 @@ Tencent hf_XAU HTTP provider
 
 Execute this roadmap strictly in order. Do not start, partially implement, or merge a later phase before the preceding phase is complete and validated. At the completion of each phase, update its **Status** in this table, report the validation results, and ask the user for explicit approval before beginning the next phase.
 
-Status values are limited to `Not started`, `In progress`, `Awaiting approval`, `Completed`, and `Blocked`. Update the table immediately when a phase begins, becomes blocked, awaits approval, or is completed. A phase may be marked `Completed` only after its completion gate passes and the user has approved moving beyond it.
+Status values are limited to `Not started`, `In progress`, `Awaiting approval`, `Completed`, and `Blocked`. Update the table immediately when a phase begins, becomes blocked, awaits approval, or is completed. A phase may be marked `Completed` only after its completion gate passes and the user has approved moving beyond it. After the user confirms that an R phase is complete, automatically write an appropriate commit log, commit all changes for that phase, and push the commit to GitHub.
 
 | Status | Phase | Scope | Completion gate |
 | --- | --- | --- | --- |
