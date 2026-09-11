@@ -2,7 +2,7 @@
 name = "gold-ticker"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.88"
 description = "A native macOS Menu Bar app for displaying Tencent hf_XAU gold quotes."
 license = "MIT"
 readme = "README.md"
