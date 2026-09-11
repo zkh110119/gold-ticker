@@ -21,7 +21,7 @@ pub(crate) struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            threshold: Decimal::ZERO,
+            threshold: Decimal::new(4000, 0),
             launch_at_login: true,
             last_threshold_status: None,
         }
@@ -238,8 +238,8 @@ mod tests {
     use super::{Settings, SettingsError, decode, encode, load_from_path, parse_threshold};
 
     #[test]
-    fn defaults_to_zero_threshold() {
-        assert_eq!(Settings::default().threshold, Decimal::ZERO);
+    fn defaults_to_4000_dollar_threshold() {
+        assert_eq!(Settings::default().threshold, Decimal::new(4000, 0));
     }
 
     #[test]

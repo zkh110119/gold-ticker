@@ -15,6 +15,24 @@ pub(crate) enum NotificationEvent {
     UnavailableOutsideAppBundle,
 }
 
+pub(crate) fn request_threshold_authorization(sender: Sender<NotificationEvent>) {
+    if !is_app_bundle_path(&NSBundle::mainBundle().bundlePath().to_string()) {
+        let _ = sender.send(NotificationEvent::UnavailableOutsideAppBundle);
+        return;
+    }
+
+    let center = UNUserNotificationCenter::currentNotificationCenter();
+    let handler = RcBlock::new(move |granted: Bool, error: *mut NSError| {
+        if !error.is_null() || !granted.as_bool() {
+            let _ = sender.send(NotificationEvent::Failed);
+        }
+    });
+    center.requestAuthorizationWithOptions_completionHandler(
+        UNAuthorizationOptions::Alert | UNAuthorizationOptions::Sound,
+        &handler,
+    );
+}
+
 pub(crate) fn request_threshold_alert(
     sender: Sender<NotificationEvent>,
     price: &str,

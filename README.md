@@ -4,7 +4,7 @@
 
 Gold Ticker is a native macOS Menu Bar application that displays the Tencent `hf_XAU` quote. It uses a compact neutral Menu Bar title and a Popover for quote details, threshold configuration, data freshness, and manual refresh.
 
-> **Distribution status:** GitHub Releases provide an unsigned, unnotarized DMG for manual installation. This project is not distributed through the Mac App Store. macOS will identify the release as unverified; only download an asset whose source and checksum you have verified.
+> **Distribution status:** GitHub Releases provide an ad-hoc signed, unnotarized DMG for manual installation. This project is not distributed through the Mac App Store. macOS will identify the release as unverified; only download an asset whose source and checksum you have verified.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ The app is not a trading tool and does not provide investment advice. Read [the 
 3. Open the DMG and move `GoldTicker.app` to `/Applications` using the included Applications alias.
 4. Launch the app only after reviewing the macOS security information and confirming that the asset came from this project.
 
-Because releases are unsigned and unnotarized, standard Gatekeeper verification is unavailable. The project does not provide instructions for bypassing macOS security protections.
+Because releases are ad-hoc signed but unnotarized, standard Gatekeeper verification is unavailable. The project does not provide instructions for bypassing macOS security protections.
 
 Before publishing any release, the publisher must document Tencent data-source terms, rate limits, display rights, and redistribution authorization. Report questions or issues through [GitHub Issues](../../issues).
 
@@ -71,7 +71,8 @@ The artifacts are written to `dist/GoldTicker.app`, `dist/GoldTicker-<version>-<
 
 - Quotes are requested from Tencent's `hf_XAU` endpoint every five minutes after startup, with failure backoff.
 - The application keeps local settings (including its threshold-alert state and startup preference), a recent quote cache, and redacted bounded diagnostics in macOS Application Support. It does not upload those files.
-- A threshold alert requests macOS notification permission only after a fresh quote crosses from at-or-above the saved threshold to below it. It does not alert repeatedly while the quote remains below the threshold.
+- A threshold alert requests macOS notification permission after a fresh quote crosses from at-or-above the saved threshold to below it. The first saved threshold establishes the current quote as the baseline, so a quote that is already below a newly saved threshold does not alert. It does not alert repeatedly while the quote remains below the threshold.
+- Primary-clicking the Menu Bar item opens or closes the Popover, clicking outside dismisses it, and secondary-clicking opens a menu with `退出 Gold Ticker`.
 - The startup preference is shown but unavailable in the unsigned DMG. macOS requires a code-signed app to register a login item.
 - The upstream response does **not** yet establish a currency or quote unit. Gold Ticker deliberately displays this as unconfirmed instead of guessing.
 - Quote availability, accuracy, delay, geographic access, rate limits, and redistribution rights belong to the third-party data source and are not guaranteed by this application.

@@ -1,6 +1,6 @@
 # GitHub Releases DMG Guide
 
-Gold Ticker is distributed as an **unsigned, unnotarized DMG** through GitHub Releases. It is not distributed through the Mac App Store.
+Gold Ticker is distributed as an **ad-hoc signed, unnotarized DMG** through GitHub Releases. It is not distributed through the Mac App Store.
 
 ## Publication prerequisites
 
@@ -39,7 +39,7 @@ Build the app bundle, DMG, and checksum sidecar:
 ./packaging/build-app.sh
 ```
 
-The command creates:
+The command creates an ad-hoc signed app bundle, DMG, and checksum sidecar:
 
 - `dist/GoldTicker.app`
 - `dist/GoldTicker-<version>-<architecture>.dmg`
@@ -85,5 +85,5 @@ The workflow does not bypass the publication prerequisites above. Confirm Tencen
 - [ ] The SHA-256 sidecar verifies the exact uploaded DMG.
 - [ ] No secrets, credentials, raw quote responses, caches, thresholds, or user diagnostics are in the release asset.
 - [ ] The unsigned release makes no claim that startup-at-login is available; it requires a code-signed app.
-- [ ] Threshold-alert permission is requested only after a fresh downward threshold crossing, and the release notes mention this local notification behavior.
+- [ ] Threshold-alert permission is requested only after a fresh downward threshold crossing. On macOS, the app appears under System Settings > Notifications only after this authorization request; verify the packaged app's notification entry and delivered alert.
 - [ ] Privacy notice, disclaimer, support channel, and third-party market-data authorization are current.

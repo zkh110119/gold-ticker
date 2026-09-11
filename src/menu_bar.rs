@@ -6,10 +6,10 @@ use objc2::rc::Retained;
 use objc2::runtime::{AnyObject, ProtocolObject};
 use objc2::{DefinedClass, MainThreadOnly, define_class, msg_send, sel};
 use objc2_app_kit::{
-    NSApp, NSApplication, NSApplicationActivationPolicy, NSApplicationDelegate, NSButton,
-    NSButtonType, NSColor, NSControlStateValueOff, NSControlStateValueOn, NSPopover,
-    NSPopoverBehavior, NSStatusBar, NSStatusItem, NSTextField, NSVariableStatusItemLength, NSView,
-    NSViewController,
+    NSApp, NSAppearanceCustomization, NSApplication, NSApplicationActivationPolicy,
+    NSApplicationDelegate, NSButton, NSButtonType, NSColor, NSControlStateValueOff,
+    NSControlStateValueOn, NSEventType, NSMenu, NSMenuItem, NSPopover, NSPopoverBehavior,
+    NSStatusBar, NSStatusItem, NSTextField, NSVariableStatusItemLength, NSView, NSViewController,
 };
 use objc2_foundation::{
     MainThreadMarker, NSNotification, NSObject, NSObjectProtocol, NSPoint, NSRect, NSRectEdge,
@@ -60,6 +60,7 @@ struct PopoverViews {
 #[derive(Default)]
 struct AppDelegateIvars {
     status_item: OnceCell<Retained<NSStatusItem>>,
+    context_menu: OnceCell<Retained<NSMenu>>,
     popover: OnceCell<Retained<NSPopover>>,
     popover_views: OnceCell<PopoverViews>,
     refresh_receiver: RefCell<Option<Receiver<RefreshEvent>>>,
@@ -101,10 +102,15 @@ define_class!(
                 .expect("a newly created status item must have a button");
             button.setTitle(&NSString::from_str("Au 更新中…"));
             button.setToolTip(Some(&NSString::from_str("正在请求最新行情")));
+            let context_menu = build_context_menu(mtm, self);
             // SAFETY: AppDelegate outlives the status-item button and the selector has the expected signature.
             unsafe {
                 button.setTarget(Some(self));
                 button.setAction(Some(sel!(togglePopover:)));
+                button.sendActionOn(
+                    objc2_app_kit::NSEventMask::LeftMouseUp
+                        | objc2_app_kit::NSEventMask::RightMouseUp,
+                );
             }
 
             let (popover, popover_views) = build_popover(mtm, self);
@@ -113,6 +119,10 @@ define_class!(
             let loaded_cache = cache::load();
             let loaded_settings = settings::load();
 
+            self.ivars()
+                .context_menu
+                .set(context_menu)
+                .expect("application delegate must only configure the context menu once");
             self.ivars()
                 .status_item
                 .set(status_item)
@@ -263,6 +273,27 @@ define_class!(
         #[unsafe(method(togglePopover:))]
         fn toggle_popover(&self, _sender: Option<&AnyObject>) {
             let mtm = self.mtm();
+            let application = NSApp(mtm);
+            if application
+                .currentEvent()
+                .is_some_and(|event| event.r#type() == NSEventType::RightMouseUp)
+            {
+                if let Some(menu) = self.ivars().context_menu.get() {
+                    let status_item = self
+                        .ivars()
+                        .status_item
+                        .get()
+                        .expect("status item must exist after application launch");
+                    let button = status_item
+                        .button(mtm)
+                        .expect("status item must have a button");
+                    if let Some(event) = application.currentEvent() {
+                        sync_context_menu_appearance(mtm, menu);
+                        NSMenu::popUpContextMenu_withEvent_forView(menu, &event, &button);
+                    }
+                }
+                return;
+            }
             let status_item = self
                 .ivars()
                 .status_item
@@ -286,6 +317,12 @@ define_class!(
                     NSRectEdge::MinY,
                 );
             }
+        }
+
+        // SAFETY: The selector has the expected `id -> void` Objective-C signature.
+        #[unsafe(method(quitApplication:))]
+        fn quit_application(&self, _sender: Option<&AnyObject>) {
+            NSApp(self.mtm()).terminate(None);
         }
 
         // SAFETY: The selector has the expected `id -> void` Objective-C signature.
@@ -332,9 +369,16 @@ define_class!(
             match settings::parse_threshold(&value) {
                 Ok(threshold) => {
                     let previous_settings = self.ivars().settings.borrow().clone();
+                    let baseline_status = self
+                        .ivars()
+                        .cache
+                        .borrow()
+                        .current
+                        .as_ref()
+                        .map(|quote| domain::threshold_status(quote.price, threshold));
                     let new_settings = Settings {
                         threshold,
-                        last_threshold_status: None,
+                        last_threshold_status: baseline_status,
                         ..previous_settings
                     };
                     match settings::save(&new_settings) {
@@ -344,6 +388,13 @@ define_class!(
                             ));
                             self.ivars().settings.replace(new_settings);
                             self.ivars().last_error.replace(None);
+                            macos_notifications::request_threshold_authorization(
+                                self.ivars()
+                                    .notification_sender
+                                    .get()
+                                    .expect("notification sender must exist after application launch")
+                                    .clone(),
+                            );
                         }
                         Err(error) => {
                             self.ivars()
@@ -520,7 +571,7 @@ fn render_popover(
                 .change
                 .setStringValue(&NSString::from_str("暂无可比较行情"));
             views.threshold.setStringValue(&NSString::from_str(&format!(
-                "阈值：{}",
+                "阈值：{} 美元",
                 formatting::format_price(threshold)
             )));
             views
@@ -569,14 +620,14 @@ fn render_quote_popover(
     let (threshold_text, price_color) = match state.threshold_status {
         ThresholdStatus::AtOrAbove => (
             format!(
-                "阈值：{} · 当前高于或等于阈值",
+                "阈值：{} 美元 · 当前高于或等于阈值",
                 formatting::format_price(threshold)
             ),
             NSColor::systemRedColor(),
         ),
         ThresholdStatus::Below => (
             format!(
-                "阈值：{} · 当前低于阈值",
+                "阈值：{} 美元 · 当前低于阈值",
                 formatting::format_price(threshold)
             ),
             NSColor::systemGreenColor(),
@@ -611,6 +662,28 @@ fn render_quote_popover(
     views.detail.setTextColor(Some(&detail_color));
 }
 
+fn sync_context_menu_appearance(mtm: MainThreadMarker, menu: &NSMenu) {
+    let appearance = NSApp(mtm).effectiveAppearance();
+    menu.setAppearance(Some(&appearance));
+}
+
+fn build_context_menu(mtm: MainThreadMarker, delegate: &AppDelegate) -> Retained<NSMenu> {
+    let menu = NSMenu::new(mtm);
+    sync_context_menu_appearance(mtm, &menu);
+    let item = unsafe {
+        NSMenuItem::initWithTitle_action_keyEquivalent(
+            NSMenuItem::alloc(mtm),
+            &NSString::from_str("退出 Gold Ticker"),
+            Some(sel!(quitApplication:)),
+            &NSString::from_str(""),
+        )
+    };
+    // SAFETY: AppDelegate outlives the menu item and implements the selector.
+    unsafe { item.setTarget(Some(delegate)) };
+    menu.addItem(&item);
+    menu
+}
+
 fn build_popover(
     mtm: MainThreadMarker,
     delegate: &AppDelegate,
@@ -624,7 +697,7 @@ fn build_popover(
     let change = label(mtm, "暂无可比较行情", 16.0, 198.0, 308.0, 20.0);
     let threshold = label(
         mtm,
-        "阈值：0 · 当前高于或等于阈值",
+        "阈值：4,000 美元 · 当前高于或等于阈值",
         16.0,
         170.0,
         308.0,
@@ -635,7 +708,7 @@ fn build_popover(
     launch_at_login.setEnabled(false);
     let login_status = label(mtm, UNSIGNED_LOGIN_ITEM_MESSAGE, 16.0, 58.0, 308.0, 16.0);
     login_status.setTextColor(Some(&NSColor::secondaryLabelColor()));
-    let threshold_input = NSTextField::textFieldWithString(&NSString::from_str("0"), mtm);
+    let threshold_input = NSTextField::textFieldWithString(&NSString::from_str("4,000"), mtm);
     threshold_input.setFrame(NSRect::new(
         NSPoint::new(16.0, 22.0),
         NSSize::new(130.0, 24.0),

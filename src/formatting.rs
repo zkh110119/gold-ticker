@@ -42,10 +42,20 @@ pub(crate) fn format_change(change: Option<&PriceChange>) -> String {
                 "{} {} ({}%)",
                 direction_symbol(change.direction),
                 signed_decimal(change.absolute),
-                signed_decimal(change.percentage)
+                signed_percentage(change.percentage)
             )
         },
     )
+}
+
+pub(crate) fn signed_percentage(value: Decimal) -> String {
+    let rounded = value.round_dp(3);
+    let sign = if rounded.is_sign_positive() && !rounded.is_zero() {
+        "+"
+    } else {
+        ""
+    };
+    format!("{sign}{rounded:.3}")
 }
 
 pub(crate) fn menu_bar_title(price: Decimal, change: Option<&PriceChange>, stale: bool) -> String {
@@ -86,7 +96,7 @@ pub(crate) fn signed_decimal(value: Decimal) -> String {
 mod tests {
     use rust_decimal::Decimal;
 
-    use super::{format_change, format_price, menu_bar_title};
+    use super::{format_change, format_price, menu_bar_title, signed_percentage};
     use crate::domain::{Direction, PriceChange};
 
     #[test]
@@ -103,10 +113,16 @@ mod tests {
             percentage: Decimal::new(33, 2),
             direction: Direction::Up,
         };
-        assert_eq!(format_change(Some(&change)), "▲ +14.49 (+0.33%)");
+        assert_eq!(format_change(Some(&change)), "▲ +14.49 (+0.330%)");
         assert_eq!(format_change(None), "—");
     }
 
+    #[test]
+    fn rounds_percentages_to_three_places() {
+        assert_eq!(signed_percentage(Decimal::new(1, 4)), "0.000");
+        assert_eq!(signed_percentage(Decimal::new(1_235, 3)), "+1.235");
+        assert_eq!(signed_percentage(Decimal::new(-1_235, 3)), "-1.235");
+    }
     #[test]
     fn adds_only_neutral_symbols_to_menu_bar_titles() {
         let change = PriceChange {

@@ -23,6 +23,7 @@ command -v plutil >/dev/null
 command -v hdiutil >/dev/null
 command -v shasum >/dev/null
 command -v xattr >/dev/null
+command -v codesign >/dev/null
 
 if [[ ! -f "$icon" ]]; then
     printf 'Missing %s. Run packaging/generate-icon.sh first.\n' "$icon" >&2
@@ -49,6 +50,7 @@ cp "$root_dir/target/release/$executable_name" "$app_path/Contents/MacOS/$execut
 cp "$icon" "$app_path/Contents/Resources/GoldTicker.icns"
 chmod 755 "$app_path/Contents/MacOS/$executable_name"
 xattr -cr "$app_path"
+codesign --force --deep --sign - "$app_path"
 plutil -lint "$app_path/Contents/Info.plist"
 
 staging_dir=$(mktemp -d "$dist_dir/$app_name-dmg-XXXXXXXX")
@@ -64,6 +66,6 @@ hdiutil verify "$dmg_path"
     shasum -a 256 "$dmg_filename"
 ) > "$checksum_path"
 
-printf 'Unsigned, unnotarized DMG artifact: %s\n' "$dmg_path"
+printf 'Ad-hoc signed, unnotarized DMG artifact: %s\n' "$dmg_path"
 printf 'SHA-256 checksum: %s\n' "$checksum_path"
 printf 'Upload both files to the matching GitHub Release after completing the release checklist.\n'
