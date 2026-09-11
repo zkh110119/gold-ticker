@@ -65,7 +65,7 @@ Build an unsigned, unnotarized app bundle, DMG, and SHA-256 sidecar:
 ./packaging/build-app.sh
 ```
 
-The artifacts are written to `dist/GoldTicker.app`, `dist/GoldTicker-<version>-<architecture>.dmg`, and `dist/GoldTicker-<version>-<architecture>.dmg.sha256`. See [the release guide](docs/RELEASE.md) for the manual GitHub Releases checklist.
+The artifacts are written to `dist/GoldTicker.app`, `dist/GoldTicker-<version>-<architecture>.dmg`, and `dist/GoldTicker-<version>-<architecture>.dmg.sha256`. See [the release guide](docs/RELEASE.md) for the manual checklist and the tag-triggered GitHub Actions release workflow.
 
 ## Data and limitations
 

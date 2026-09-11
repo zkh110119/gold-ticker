@@ -57,7 +57,19 @@ cd dist && shasum -a 256 -c GoldTicker-<version>-<architecture>.dmg.sha256
 
 Check that neither the DMG nor its source staging content contains credentials, quote caches, thresholds, or diagnostic logs.
 
-## Create the GitHub Release
+## Automated GitHub Release
+
+The repository includes [`.github/workflows/release.yml`](../.github/workflows/release.yml). Push a tag matching the exact version in `Cargo.toml`, for example `v0.1.0`, to start the macOS release workflow:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The workflow runs on `macos-14`, validates formatting, tests, Clippy, and the release build, checks that the tag matches the package version, builds and verifies the unsigned DMG and checksum, then creates the GitHub Release with only the matching `.dmg` and `.dmg.sha256` assets. The `release` environment can be configured in repository settings to require an explicit maintainer approval before publication.
+
+The workflow does not bypass the publication prerequisites above. Confirm Tencent data-source terms, rate limits, regional availability, display rights, redistribution authorization, and the current privacy/disclaimer material before pushing a release tag. It does not sign or notarize the app, submit to the Mac App Store, or provide Gatekeeper bypass instructions.
+
 
 1. Create a GitHub Release using the version from `Cargo.toml` as its tag and title.
 2. Upload only the matching `.dmg` and `.dmg.sha256` files.
