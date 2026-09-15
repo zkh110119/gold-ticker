@@ -61,11 +61,11 @@ Check that neither the DMG nor its source staging content contains credentials, 
 
 ## Automated GitHub Release
 
-The repository includes [`.github/workflows/release.yml`](../.github/workflows/release.yml). Push a tag matching the exact version in `Cargo.toml`, for example `v0.1.0`, to start the macOS release workflow:
+The repository includes [`.github/workflows/release.yml`](../.github/workflows/release.yml). Push a tag matching the exact version in `Cargo.toml`, for example `v1.0.0`, to start the macOS release workflow:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 The workflow runs on `macos-14`, validates formatting, tests, Clippy, and the release build, checks that the tag matches the package version, builds and verifies the unsigned DMG and checksum, then creates the GitHub Release with only the matching `.dmg` and `.dmg.sha256` assets. The `release` environment can be configured in repository settings to require an explicit maintainer approval before publication.
