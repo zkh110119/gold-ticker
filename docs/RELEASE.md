@@ -13,6 +13,8 @@ Do not publish until all of the following are true:
 
 ## Build the release artifact
 
+The DMG uses the declarative `dmgbuild` layout defined in [packaging/dmg-settings.py](../packaging/dmg-settings.py). The generated Finder window keeps `GoldTicker.app` and the Applications alias centered with the drag-to-Applications arrow between them.
+
 Generate the committed icon resource if it is not already present:
 
 ```bash

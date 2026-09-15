@@ -54,7 +54,7 @@ pub(crate) fn request_threshold_alert(
         }
 
         let content = UNMutableNotificationContent::new();
-        content.setTitle(&NSString::from_str("Gold Ticker 阈值提醒"));
+        content.setTitle(&NSString::from_str("GoldTicker 阈值提醒"));
         content.setBody(&NSString::from_str(&format!(
             "最新价格 {price} 已低于阈值 {threshold}"
         )));

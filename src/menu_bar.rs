@@ -673,7 +673,7 @@ fn build_context_menu(mtm: MainThreadMarker, delegate: &AppDelegate) -> Retained
     let item = unsafe {
         NSMenuItem::initWithTitle_action_keyEquivalent(
             NSMenuItem::alloc(mtm),
-            &NSString::from_str("退出 Gold Ticker"),
+            &NSString::from_str("退出 GoldTicker"),
             Some(sel!(quitApplication:)),
             &NSString::from_str(""),
         )

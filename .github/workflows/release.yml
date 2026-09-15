@@ -67,6 +67,20 @@ jobs:
           [[ "$(plutil -extract CFBundleShortVersionString raw "$app/Contents/Info.plist")" == "$version" ]]
           [[ -x "$app/Contents/MacOS/gold-ticker" ]]
           hdiutil verify "$dmg"
+          final_mount_output="$(hdiutil attach -nobrowse -readonly "$dmg")"
+          final_device="$(printf '%s\n' "$final_mount_output" | awk '/Apple_HFS|Apple_APFS/ {print $1; exit}')"
+          final_mount="$(printf '%s\n' "$final_mount_output" | awk '/Apple_HFS|Apple_APFS/ {print $3; exit}')"
+          [[ -n "$final_device" && -n "$final_mount" ]] || { echo "Unable to mount final DMG" >&2; exit 1; }
+          cleanup_mount() { hdiutil detach "$final_device" -quiet >/dev/null 2>&1 || true; }
+          trap cleanup_mount EXIT
+          [[ -d "$final_mount/GoldTicker.app" ]] || { echo "GoldTicker.app missing from final DMG" >&2; exit 1; }
+          [[ -L "$final_mount/Applications" ]] || { echo "Applications link missing from final DMG" >&2; exit 1; }
+          [[ "$(readlink "$final_mount/Applications")" == "/Applications" ]] || { echo "Applications link target is incorrect" >&2; exit 1; }
+          [[ -f "$final_mount/.DS_Store" ]] || { echo "Finder layout metadata missing from final DMG" >&2; exit 1; }
+          hdiutil detach "$final_device" -quiet
+          trap - EXIT
+          final_device=""
+          final_mount=""
           (cd dist && shasum -a 256 -c "$(basename "$checksum")")
           while IFS= read -r path; do
             name="$(basename "$path")"

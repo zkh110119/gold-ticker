@@ -1,8 +1,8 @@
-# Gold Ticker
+# GoldTicker
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Gold Ticker is a native macOS Menu Bar application that displays the Tencent `hf_XAU` quote. It uses a compact neutral Menu Bar title and a Popover for quote details, threshold configuration, data freshness, and manual refresh.
+GoldTicker is a native macOS Menu Bar application that displays the Tencent `hf_XAU` quote. It uses a compact neutral Menu Bar title and a Popover for quote details, threshold configuration, data freshness, and manual refresh.
 
 > **Distribution status:** GitHub Releases provide an ad-hoc signed, unnotarized DMG for manual installation. This project is not distributed through the Mac App Store. macOS will identify the release as unverified; only download an asset whose source and checksum you have verified.
 

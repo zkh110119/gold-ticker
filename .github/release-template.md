@@ -1,4 +1,4 @@
-## Gold Ticker v<version>
+## GoldTicker v<version>
 
 ### Download
 

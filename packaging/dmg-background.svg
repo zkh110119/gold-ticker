@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#8a8a8a"/>
+    </marker>
+  </defs>
+  <rect width="640" height="420" fill="#ffffff"/>
+  <path d="M 250 150 C 280 125, 340 125, 370 150 L 376 150" fill="none" stroke="#8a8a8a" stroke-linecap="round" stroke-width="3"/>
+  <path d="M 390 150 L 376 141 L 376 159 Z" fill="#8a8a8a"/>
+</svg>
